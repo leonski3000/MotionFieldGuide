@@ -1,0 +1,293 @@
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/DMSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  src: url("fonts/DMSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("fonts/DMMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --bg: #1A1A1A;
+  --text: #808080;
+  --bright: #FEF9F3;
+  --dim: #404040;
+  --sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Hero width follows the viewport height (660px at the 1024px-high reference),
+     capped by the viewport width and an upper limit for very large screens. */
+  --hero-w: min(100vw - 48px, clamp(320px, 64.5vh, 1100px));
+  --intro-offset: 0.7s;
+}
+
+@supports (height: 1svh) {
+  :root { --hero-w: min(100vw - 48px, clamp(320px, 64.5svh, 1100px)); }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { background: var(--bg); color-scheme: dark; }
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 23px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Landing */
+
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: calc(var(--hero-w) + 48px);
+  margin: 0 auto;
+  padding: 100px 24px 32px;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2520 / 2240;
+}
+
+.hero__poster,
+.hero__svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hero__poster { object-fit: contain; }
+
+.intro {
+  display: flex;
+  align-items: stretch;
+  gap: calc(var(--hero-w) * 0.042);
+  margin-top: calc(var(--hero-w) * 0.052);
+  padding: 0 4px;
+}
+
+.intro__text {
+  max-width: 59.8%;
+  font-size: clamp(18px, calc(var(--hero-w) * 0.0242), 24px);
+  line-height: 1.28;
+}
+
+.intro__rule {
+  flex: none;
+  width: 1px;
+  background: var(--text);
+}
+
+.intro__status {
+  display: flex;
+  align-items: center;
+  font-size: clamp(28px, calc(var(--hero-w) * 0.037), 38px);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Fade in on load, following the hero entrance: text first, then the line
+   (growing) together with the status. */
+
+.intro > * { animation: fade-in 0.9s ease-out backwards; }
+.intro__text {
+  animation-duration: 1.6s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-delay: calc(var(--intro-offset) + 0.4s);
+}
+.intro__rule {
+  animation-name: fade-in, grow-in;
+  animation-duration: 0.6s, 1s;
+  animation-timing-function: ease-out, cubic-bezier(0, 0, 0.1, 1);
+  animation-delay: calc(var(--intro-offset) + 0.7s);
+}
+.intro__status { animation-duration: 0.6s; animation-delay: calc(var(--intro-offset) + 0.7s); }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes grow-in {
+  from { transform: scaleY(0); }
+}
+
+@keyframes grow-in-x {
+  from { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro > * { animation: none; }
+}
+
+/* Hero entrance. The ids are the After Effects layer names; a renamed or
+   missing layer simply appears without an entrance. */
+.hero__svg > :is(#bg-grid, #diagonale-1, #diagonale-2, #diagonale-3) { animation: fade-in 1s ease-out backwards; }
+
+/* The orbits draw on in the direction their markers travel, while the whole
+   ring turns the same way, so the starting point moves too. */
+.hero__svg > :is(#orbit-1, #orbit-2) path[pathLength] {
+  stroke-dasharray: 1;
+  animation: draw-in 1.6s cubic-bezier(0, 0, 0.1, 1) 0.4s backwards, fade-in 0.9s ease-out 0.4s backwards;
+}
+.hero__svg > #orbit-2 path[pathLength] { animation-delay: 0.65s; }
+
+.hero__svg > :is(#circle-1, #circle-2) {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fade-in 0.3s ease-out 1.2s backwards, pop-in 0.7s cubic-bezier(0, 0, 0.1, 1) 1.2s backwards;
+}
+.hero__svg > #circle-2 { animation-delay: 1.35s; }
+
+.hero__svg > #logo-white {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fade-in 0.9s ease-out 0.2s backwards, settle-in 0.9s cubic-bezier(0, 0, 0.1, 1) 0.2s backwards;
+}
+
+.hero__svg > :is(#foundations, #shape, #circle, #shape-1, #shape-2) { animation: fade-in 0.5s ease-out 1.35s backwards; }
+.hero__svg > :is(#systems, #text-anchor-1) { animation: fade-in 0.5s ease-out 1.45s backwards; }
+.hero__svg > :is(#elements, #text-anchor-2) { animation: fade-in 0.5s ease-out 1.55s backwards; }
+
+@keyframes draw-in {
+  from { stroke-dashoffset: -1; transform: rotate(-150deg); }
+}
+
+@keyframes settle-in {
+  from { transform: scale(0.97); }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.6); }
+}
+
+/* Pointer parallax: hero.js sets --px / --py between -1 and 1. Layers closer
+   to the viewer move further. The markers that sit on the orbits move with
+   them. Overflow is visible so the grid's outer lines are not cut off as it shifts. */
+.hero__svg { --px: 0; --py: 0; overflow: visible; }
+.hero__svg.is-clickable { cursor: pointer; }
+.hero__svg > :is(#bg-grid, #diagonale-1, #diagonale-2, #diagonale-3) { translate: calc(var(--px) * -4px) calc(var(--py) * -4px); }
+.hero__svg > :is(#orbit-1, #orbit-2, #circle-1, #circle-2, #text-anchor-1, #text-anchor-2) {
+  translate: calc(var(--px) * -10px) calc(var(--py) * -10px);
+}
+.hero__svg > :is(#foundations, #shape, #circle, #shape-1, #shape-2, #systems, #elements) {
+  translate: calc(var(--px) * -14px) calc(var(--py) * -14px);
+}
+.hero__svg > #logo-white { translate: calc(var(--px) * -18px) calc(var(--py) * -18px); }
+
+.footer {
+  display: flex;
+  gap: 24px;
+  padding: 0 50px 26px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--dim);
+}
+
+.footer a { text-decoration: none; }
+.footer a:hover,
+.footer a:focus-visible { color: var(--text); }
+
+@media (max-width: 640px) {
+  .stage { padding-top: 32px; }
+  .intro {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .intro__text { max-width: none; }
+  .intro__rule {
+    width: 69px;
+    height: 1px;
+    animation-name: fade-in, grow-in-x;
+  }
+  .intro__status { font-size: 24px; }
+  .footer { justify-content: center; padding: 0 28px 24px; }
+}
+
+/* Variant 2 — logo lockup only */
+
+.v2 { --bg: #121212; }
+
+.v2 .stage { align-items: center; }
+
+.v2 .hero {
+  width: 100%;
+  max-width: 460px;
+  aspect-ratio: 1380 / 1275;
+}
+
+.status {
+  margin-top: 30px;
+  color: var(--bright);
+  font-size: 28px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Legal pages */
+
+.legal {
+  flex: 1;
+  width: 100%;
+  max-width: calc(660px + 48px);
+  margin: 0 auto;
+  padding: 80px 24px 64px;
+  line-height: 26px;
+}
+
+.legal h1 {
+  margin-bottom: 40px;
+  color: var(--bright);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.legal h2 {
+  margin: 32px 0 8px;
+  color: var(--bright);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.legal p + p { margin-top: 12px; }
